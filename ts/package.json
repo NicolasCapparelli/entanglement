@@ -1,0 +1,14 @@
+{
+  "name": "entanglement-ts",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "tsc -b packages/core packages/supabase",
+    "typecheck": "tsc -b packages/core packages/supabase --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.0"
+  }
+}

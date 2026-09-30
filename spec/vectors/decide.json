@@ -1,0 +1,243 @@
+[
+  {
+    "base": null,
+    "local": null,
+    "remote": null,
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "local",
+      "value": null
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": "{\"a\":1}",
+    "remote": "{\"a\":2}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "remote",
+      "value": {
+        "a": 2
+      }
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": "{\"a\":2}",
+    "remote": "{\"a\":1}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "local",
+      "value": {
+        "a": 2
+      }
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": "{\"a\":2}",
+    "remote": "{\"a\":2}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "local",
+      "value": {
+        "a": 2
+      }
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": "{\"a\":2}",
+    "remote": "{\"a\":3}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "conflict",
+      "reason": "bothChanged",
+      "fields": []
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": null,
+    "remote": "{\"a\":3}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "conflict",
+      "reason": "deleteVsEdit",
+      "fields": []
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": "{\"a\":3}",
+    "remote": null,
+    "policy": {
+      "kind": "fieldwise",
+      "groups": []
+    },
+    "expected": {
+      "take": "conflict",
+      "reason": "deleteVsEdit",
+      "fields": []
+    }
+  },
+  {
+    "base": "{\"a\":1}",
+    "local": null,
+    "remote": null,
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "local",
+      "value": null
+    }
+  },
+  {
+    "base": null,
+    "local": "{\"a\":1}",
+    "remote": "{\"a\":2}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "conflict",
+      "reason": "bothChanged",
+      "fields": []
+    }
+  },
+  {
+    "base": null,
+    "local": "{\"a\":1,\"b\":1}",
+    "remote": "{\"a\":1,\"c\":2}",
+    "policy": {
+      "kind": "fieldwise",
+      "groups": []
+    },
+    "expected": {
+      "take": "merged",
+      "value": {
+        "a": 1,
+        "b": 1,
+        "c": 2
+      }
+    }
+  },
+  {
+    "base": "{\"a\":1,\"b\":1}",
+    "local": "{\"a\":2,\"b\":1}",
+    "remote": "{\"a\":1,\"b\":2}",
+    "policy": {
+      "kind": "fieldwise",
+      "groups": []
+    },
+    "expected": {
+      "take": "merged",
+      "value": {
+        "a": 2,
+        "b": 2
+      }
+    }
+  },
+  {
+    "base": "{\"a\":1,\"b\":1}",
+    "local": "{\"a\":2,\"b\":1}",
+    "remote": "{\"a\":3,\"b\":2}",
+    "policy": {
+      "kind": "fieldwise",
+      "groups": []
+    },
+    "expected": {
+      "take": "conflict",
+      "reason": "fieldConflict",
+      "fields": [
+        "a"
+      ]
+    }
+  },
+  {
+    "base": "{\"a\":1,\"b\":1}",
+    "local": "{\"b\":1}",
+    "remote": "{\"a\":1,\"b\":2}",
+    "policy": {
+      "kind": "fieldwise",
+      "groups": []
+    },
+    "expected": {
+      "take": "merged",
+      "value": {
+        "b": 2
+      }
+    }
+  },
+  {
+    "base": "{\"a\":1,\"b\":1,\"c\":1}",
+    "local": "{\"a\":2,\"b\":1,\"c\":1}",
+    "remote": "{\"a\":1,\"b\":2,\"c\":1}",
+    "policy": {
+      "kind": "fieldwise",
+      "groups": [
+        [
+          "a",
+          "b"
+        ]
+      ]
+    },
+    "expected": {
+      "take": "conflict",
+      "reason": "fieldConflict",
+      "fields": [
+        "a",
+        "b"
+      ]
+    }
+  },
+  {
+    "base": "{\"a\":1,\"b\":1,\"c\":1}",
+    "local": "{\"a\":2,\"b\":1,\"c\":1}",
+    "remote": "{\"a\":1,\"b\":1,\"c\":2}",
+    "policy": {
+      "kind": "fieldwise",
+      "groups": [
+        [
+          "a",
+          "b"
+        ]
+      ]
+    },
+    "expected": {
+      "take": "merged",
+      "value": {
+        "a": 2,
+        "b": 1,
+        "c": 2
+      }
+    }
+  },
+  {
+    "base": "{\"n\":1.0}",
+    "local": "{\"n\":1}",
+    "remote": "{\"n\":2}",
+    "policy": {
+      "kind": "wholeDocument"
+    },
+    "expected": {
+      "take": "remote",
+      "value": {
+        "n": 2
+      }
+    }
+  }
+]

@@ -1,0 +1,17 @@
+name: entanglement
+description: >-
+  Local-first sync framework with a git-style VCS mode and a realtime mode over
+  the same commit protocol.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  crypto: ^3.0.6
+  sqlite3: ^2.9.0
+
+dev_dependencies:
+  lints: ^5.1.1
+  test: ^1.26.2

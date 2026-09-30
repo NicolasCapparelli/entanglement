@@ -1,0 +1,14 @@
+# Dart
+.dart_tool/
+pubspec.lock
+build/
+
+# TypeScript
+node_modules/
+dist/
+*.tsbuildinfo
+ts/.packs/
+
+# OS / editor
+.DS_Store
+Thumbs.db

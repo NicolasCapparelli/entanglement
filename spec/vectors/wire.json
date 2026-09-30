@@ -1,0 +1,151 @@
+{
+  "commits": [
+    {
+      "commitId": "0192b5e4-7c1a-7d3e-9f10-000000000000",
+      "parent": 0,
+      "schemaVersion": 1,
+      "compatibleSince": 1,
+      "deviceId": "vector-device",
+      "deviceLabel": "Vectors",
+      "clientTime": 1759140000000,
+      "message": "first",
+      "stateDigest": "59258a138218bc41e909bad2cc99afddd212ffe877087ff5ca7a02bdc01277bb",
+      "changes": [
+        {
+          "collection": "boards",
+          "id": "b1",
+          "op": "put",
+          "group": 0,
+          "value": {
+            "id": "b1",
+            "name": "Home",
+            "position": 0
+          }
+        },
+        {
+          "collection": "tasks",
+          "id": "t1",
+          "op": "put",
+          "group": 1,
+          "value": {
+            "boardId": "b1",
+            "done": false,
+            "id": "t1",
+            "title": "Milk ü",
+            "weight": 1.5
+          }
+        },
+        {
+          "collection": "tasks",
+          "id": "t2",
+          "op": "put",
+          "group": 0,
+          "value": {
+            "boardId": "b1",
+            "done": false,
+            "id": "t2",
+            "title": "Bread",
+            "weight": 2
+          }
+        }
+      ]
+    },
+    {
+      "commitId": "0192b5e4-7c1a-7d3e-9f10-000000000001",
+      "parent": 1,
+      "schemaVersion": 1,
+      "compatibleSince": 1,
+      "deviceId": "vector-device",
+      "deviceLabel": "Vectors",
+      "clientTime": 1759140000001,
+      "message": null,
+      "stateDigest": "aa2eb8a8309e92a53b685d345356db152e5bba45d66cd67c7914ea1feab08834",
+      "changes": [
+        {
+          "collection": "tasks",
+          "id": "t1",
+          "op": "put",
+          "group": 0,
+          "value": {
+            "boardId": "b1",
+            "done": true,
+            "id": "t1",
+            "title": "Oat milk 😀",
+            "weight": 1e-7
+          }
+        },
+        {
+          "collection": "tasks",
+          "id": "t2",
+          "op": "delete",
+          "group": 1
+        }
+      ]
+    },
+    {
+      "commitId": "0192b5e4-7c1a-7d3e-9f10-000000000002",
+      "parent": 2,
+      "schemaVersion": 1,
+      "compatibleSince": 1,
+      "deviceId": "vector-device",
+      "deviceLabel": "Vectors",
+      "clientTime": 1759140000002,
+      "message": null,
+      "stateDigest": "1304b530865224adc560861391197ed4f699a5baa94214d2556527471d43d7ed",
+      "changes": [
+        {
+          "collection": "boards",
+          "id": "b2",
+          "op": "put",
+          "group": 0,
+          "value": {
+            "id": "b2",
+            "name": "Work",
+            "nested": {
+              "a": null,
+              "z": [
+                1,
+                2
+              ]
+            },
+            "position": 1
+          }
+        },
+        {
+          "collection": "ent_sync_log",
+          "id": "l1",
+          "op": "put",
+          "group": 1,
+          "value": {
+            "at": 1759140000000,
+            "discarded": [],
+            "id": "l1"
+          }
+        }
+      ]
+    }
+  ],
+  "finalState": [
+    [
+      "boards",
+      "b1",
+      "{\"id\":\"b1\",\"name\":\"Home\",\"position\":0}"
+    ],
+    [
+      "boards",
+      "b2",
+      "{\"id\":\"b2\",\"name\":\"Work\",\"nested\":{\"a\":null,\"z\":[1,2]},\"position\":1}"
+    ],
+    [
+      "ent_sync_log",
+      "l1",
+      "{\"at\":1759140000000,\"discarded\":[],\"id\":\"l1\"}"
+    ],
+    [
+      "tasks",
+      "t1",
+      "{\"boardId\":\"b1\",\"done\":true,\"id\":\"t1\",\"title\":\"Oat milk 😀\",\"weight\":1e-7}"
+    ]
+  ],
+  "finalDigest": "1304b530865224adc560861391197ed4f699a5baa94214d2556527471d43d7ed"
+}

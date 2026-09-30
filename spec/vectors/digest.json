@@ -1,0 +1,58 @@
+[
+  {
+    "documents": [],
+    "entityHashes": [],
+    "stateDigest": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+    "documents": [
+      [
+        "tasks",
+        "a",
+        "{\"t\":1}"
+      ]
+    ],
+    "entityHashes": [
+      "9dc0bfb8f908707bf9dbbd0644e6a7a5abdcee9ce8751d999cc5c9f9d6c699b2"
+    ],
+    "stateDigest": "9dc0bfb8f908707bf9dbbd0644e6a7a5abdcee9ce8751d999cc5c9f9d6c699b2"
+  },
+  {
+    "documents": [
+      [
+        "tasks",
+        "a",
+        "{\"t\":1}"
+      ],
+      [
+        "tasks",
+        "b",
+        "{\"t\":2}"
+      ],
+      [
+        "boards",
+        "x",
+        "{\"n\":\"x\"}"
+      ]
+    ],
+    "entityHashes": [
+      "9dc0bfb8f908707bf9dbbd0644e6a7a5abdcee9ce8751d999cc5c9f9d6c699b2",
+      "1aca67c30f94ea9975ba96d77f1bbb237ce125036d3b0c2768af10c1864df061",
+      "d793b80b393f257246906de0ee763c4caedf210f630c2ec01c1364d4d5355707"
+    ],
+    "stateDigest": "901edf8741dc8087b626c1beb2789f15d79d34afb8bc588121883f903249e11a"
+  },
+  {
+    "documents": [
+      [
+        "notes",
+        "unicode é",
+        "{\"text\":\"😀\"}"
+      ]
+    ],
+    "entityHashes": [
+      "010386a66dbadfbddbfbd80eaf3a3c2e8fa20266825dfce1d4b1e030b7842f2a"
+    ],
+    "stateDigest": "010386a66dbadfbddbfbd80eaf3a3c2e8fa20266825dfce1d4b1e030b7842f2a"
+  }
+]
