@@ -45,6 +45,7 @@ const SQL = path.join(root, "packages/entanglement_supabase/supabase/migrations/
 const APPS = [
 	{ name: "quadra-app", kind: "dart", dir: "../quadra-app/vendor/entanglement" },
 	{ name: "quadra", kind: "ts", dir: "../quadra/vendor/entanglement" },
+	{ name: "trace", kind: "dart", dir: "../trace/vendor/entanglement" },
 ];
 
 if (args.status) {
