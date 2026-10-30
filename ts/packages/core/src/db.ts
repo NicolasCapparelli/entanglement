@@ -1,3 +1,4 @@
+import { EncryptedBackend, type Cipher } from "./cipher.js";
 import type { Unsubscribe } from "./emitter.js";
 import { SyncEngine } from "./engine.js";
 import type { AccountSource, SyncBackend } from "./protocol.js";
@@ -21,6 +22,8 @@ export interface OpenOptions {
   accounts?: AccountSource;
   options?: SyncOptions;
   role?: SyncRole;
+  /** Encrypts everything sent to the backend (spec/cipher.md). */
+  cipher?: Cipher;
 }
 
 /**
@@ -44,7 +47,12 @@ export class EntanglementDb {
     const store = await EntanglementStore.open(options.executor, options.schema);
     let engine: SyncEngine | null = null;
     if (options.backend && options.accounts && (options.role ?? "leader") === "leader") {
-      engine = new SyncEngine(store, options.backend, options.accounts, options.options);
+      engine = new SyncEngine(
+        store,
+        options.cipher ? new EncryptedBackend(options.backend, options.cipher) : options.backend,
+        options.accounts,
+        options.options,
+      );
       await engine.start();
     }
     return new EntanglementDb(store, engine);

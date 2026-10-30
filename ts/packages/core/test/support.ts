@@ -8,6 +8,7 @@ import {
   MergePolicy,
   Ref,
   Schema,
+  type Cipher,
   type DocumentMigration,
   type InMemoryServer,
   type Json,
@@ -73,6 +74,7 @@ export class Device {
       sync?: SyncOptions;
       schema?: Schema;
       executor?: SqlExecutor;
+      cipher?: Cipher;
     } = {},
   ): Promise<Device> {
     const name = options.name ?? "device";
@@ -82,6 +84,7 @@ export class Device {
       schema: options.schema ?? testSchema(),
       backend: new InMemoryBackend(server, accounts),
       accounts,
+      cipher: options.cipher,
       options: { ...quietOptions, ...options.sync, deviceLabel: name },
     });
     return new Device(name, db, accounts);

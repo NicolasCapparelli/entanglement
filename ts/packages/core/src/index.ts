@@ -4,6 +4,7 @@
  * `Entanglement/docs/design.md` ("spec §N" in comments); it speaks the same
  * wire format and passes the same conformance vectors as the Dart one.
  */
+export { CipherContext, CipherError, EncryptedBackend, KeyCipher, openValue, sealValue, type Cipher, type KeyCipherOptions } from "./cipher.js";
 export { canonicalJson, decodeDocument, CanonicalJsonError, type Json } from "./canonical.js";
 export { StateDigest, entityHash } from "./digest.js";
 export { Emitter, type Unsubscribe } from "./emitter.js";
