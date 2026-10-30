@@ -5,7 +5,7 @@ A local-first sync framework for personal apps. The local SQLite database is alw
 - **VCS mode:** nothing leaves or arrives until you push or pull (or an autosave timer does). Pulls three-way merge; conflicts wait for your decision.
 - **Realtime mode:** the same commits, pushed a moment after edits and pulled as soon as the server hints. Conflicts resolve by policy, and every automatic decision is logged and reversible.
 
-Implemented twice, in **Dart** (Flutter) and **TypeScript** (Obsidian, browsers, React Native later), speaking one wire format to one Supabase schema.
+Implemented twice, in **Dart** (Flutter) and **TypeScript** (Obsidian, browsers, React Native later), speaking one wire format to one Supabase schema. A Cloudflare Durable Object server (TypeScript) implements the same server rules as an alternative.
 
 **Start with [docs/how-it-works.md](docs/how-it-works.md).** It explains every part, and how Quadra uses them. The formal design is [docs/design.md](docs/design.md) ("spec §N" in code).
 
@@ -18,9 +18,10 @@ Implemented twice, in **Dart** (Flutter) and **TypeScript** (Obsidian, browsers,
 | `packages/entanglement_supabase` | Dart Supabase backend, and **the server SQL** (`supabase/migrations/0001_entanglement.sql`) |
 | `ts/packages/core` | `@entanglement/core`: the TypeScript core, and the sql.js executor |
 | `ts/packages/supabase` | `@entanglement/supabase`: the TypeScript Supabase backend |
+| `ts/packages/cloudflare` | `@entanglement/cloudflare`: a Durable Object server (one per account, SQLite, WebSocket hints), a Worker helper, and the client backend; see [docs/cloudflare-setup.md](docs/cloudflare-setup.md) |
 | `spec/vectors` | Data both implementations must reproduce exactly |
 | `tool/vendor.mjs` | Copies the framework into an app |
-| `docs/` | how-it-works.md, design.md, supabase-setup.md (scratch test project) |
+| `docs/` | how-it-works.md, design.md, supabase-setup.md (scratch test project), cloudflare-setup.md |
 
 ## Using it in an app
 

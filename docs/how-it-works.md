@@ -268,7 +268,7 @@ A `Schema` has a `version`, a `compatibleSince`, and optional `migrations` (`toV
 
 ## 12. The server
 
-The only server code is SQL: `packages/entanglement_supabase/supabase/migrations/0001_entanglement.sql`. Apps vendor it; Quadra's copy is `quadra-app/supabase/migrations/0002_entanglement.sql`. The same rules are also implemented by the in-memory reference server `InMemoryServer`, used in tests.
+The only server code is SQL: `packages/entanglement_supabase/supabase/migrations/0001_entanglement.sql`. Apps vendor it; Quadra's copy is `quadra-app/supabase/migrations/0002_entanglement.sql`. The same rules are also implemented by the in-memory reference server `InMemoryServer`, used in tests. A second implementation of the same rules is the Durable Object in `ts/packages/cloudflare` (see [cloudflare-setup.md](cloudflare-setup.md)): one object per account on SQLite, where its single-threaded execution takes the place of row locks.
 
 | Object | Role |
 |---|---|
