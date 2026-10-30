@@ -14,6 +14,7 @@ import {
   type Json,
   type KeyString,
   type SqlExecutor,
+  type SyncBackend,
   type SyncOptions,
 } from "../src/index.js";
 import { SqlJsExecutor } from "../src/sqljs.js";
@@ -67,7 +68,7 @@ export class Device {
   ) {}
 
   static async create(
-    server: InMemoryServer,
+    server: InMemoryServer | null,
     options: {
       name?: string;
       account?: string | null;
@@ -75,6 +76,8 @@ export class Device {
       schema?: Schema;
       executor?: SqlExecutor;
       cipher?: Cipher;
+      /** Replaces the in-memory backend (then `server` may be null). */
+      backend?: (accounts: ManualAccountSource) => SyncBackend;
     } = {},
   ): Promise<Device> {
     const name = options.name ?? "device";
@@ -82,7 +85,7 @@ export class Device {
     const db = await EntanglementDb.open({
       executor: options.executor ?? (await memoryExecutor()),
       schema: options.schema ?? testSchema(),
-      backend: new InMemoryBackend(server, accounts),
+      backend: options.backend ? options.backend(accounts) : new InMemoryBackend(server!, accounts),
       accounts,
       cipher: options.cipher,
       options: { ...quietOptions, ...options.sync, deviceLabel: name },
