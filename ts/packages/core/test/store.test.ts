@@ -196,3 +196,49 @@ test("local migrations transform documents; newer databases refuse to open", asy
 
   await expect(openLocal(new SqlJsExecutor(new SQL.Database(saved!)))).rejects.toBeInstanceOf(LocalSchemaTooNew);
 });
+
+describe("reference checks", () => {
+  /** Counts statements while `body` runs. */
+  async function countingDb(): Promise<{ db: EntanglementDb; during: (body: () => Promise<unknown>) => Promise<number> }> {
+    const executor = await memoryExecutor();
+    let calls = 0;
+    const select = executor.select.bind(executor);
+    executor.select = (sql, args) => {
+      calls++;
+      return select(sql, args);
+    };
+    const counted = await openLocal(executor);
+    return {
+      db: counted,
+      during: async (body) => {
+        calls = 0;
+        await body();
+        return calls;
+      },
+    };
+  }
+
+  test("editing a target does not read its referrers one at a time", async () => {
+    const { db: local, during } = await countingDb();
+    await local.write((tx) => tx.put(boards, { id: "b1", name: "Home" }));
+    const seed = async (n: number, from: number): Promise<void> => {
+      await local.write(async (tx) => {
+        for (let i = from; i < from + n; i++) await tx.put(tasks, { id: `t${i}`, boardId: "b1", title: "x", done: false, position: i, notes: "" });
+      });
+    };
+    await seed(20, 0);
+    const few = await during(() => local.write((tx) => tx.put(boards, { id: "b1", name: "Few" })));
+    await seed(980, 20);
+    const many = await during(() => local.write((tx) => tx.put(boards, { id: "b1", name: "Many" })));
+    expect(many - few).toBeLessThan(5);
+    await local.close();
+  });
+
+  test("still refuses deleting a target with many referrers", async () => {
+    await db.write((tx) => tx.put(boards, { id: "b1", name: "Home" }));
+    await db.write(async (tx) => {
+      for (let i = 0; i < 450; i++) await tx.put(tasks, { id: `t${i}`, boardId: "b1", title: "x", done: false, position: i, notes: "" });
+    });
+    await expect(db.write((tx) => tx.delete(boards, "b1"))).rejects.toBeInstanceOf(IntegrityViolation);
+  });
+});

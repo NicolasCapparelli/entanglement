@@ -29,6 +29,8 @@ export interface ChangeEvent {
 }
 
 /** A reference that does not hold. */
+const RAW_CHUNK = 400;
+
 export interface Violation {
   readonly from: KeyString;
   readonly to: KeyString;
@@ -477,12 +479,22 @@ export class EntanglementStore {
    * Finds broken references among `keys`, viewing documents through
    * `valueOf` (spec §5.4, §12.4): outgoing references of every key with a
    * value, and references into every key from documents outside `keys`.
+   * Documents outside `keys` are read as stored, in bulk: a target with
+   * thousands of referrers is written on the UI's path, and every statement
+   * here runs under the store lock. Each target is looked up once.
    */
   async findViolations(
     keys: ReadonlySet<KeyString>,
     valueOf: (key: KeyString) => Promise<string | null>,
   ): Promise<Violation[]> {
     const violations: Violation[] = [];
+    const targets = new Map<KeyString, string | null>();
+    const targetOf = async (key: KeyString): Promise<string | null> => {
+      if (targets.has(key)) return targets.get(key) ?? null;
+      const value = await valueOf(key);
+      targets.set(key, value);
+      return value;
+    };
     const checkRef = async (from: KeyString, ref: Ref): Promise<void> => {
       const fromDef = this.defs.get(parseKey(from).collection);
       const targetDef = this.defs.get(ref.collection);
@@ -494,7 +506,7 @@ export class EntanglementStore {
         violations.push({ from, to: ref.key, reason: "synced document references local-only data" });
         return;
       }
-      const target = await valueOf(ref.key);
+      const target = await targetOf(ref.key);
       if (target === null) {
         violations.push({ from, to: ref.key, reason: "target does not exist" });
         return;
@@ -512,10 +524,8 @@ export class EntanglementStore {
       for (const ref of def.refsOf(decodeDocument(value))) await checkRef(key, ref);
     }
     for (const key of keys) {
-      for (const referrer of await this.referrers(key)) {
-        if (keys.has(referrer)) continue;
-        const value = await valueOf(referrer);
-        if (value === null) continue;
+      const outside = (await this.referrers(key)).filter((referrer) => !keys.has(referrer));
+      for (const [referrer, value] of await this.rawMany(outside)) {
         const def = this.defs.get(parseKey(referrer).collection);
         if (!def) continue;
         for (const ref of def.refsOf(decodeDocument(value))) {
@@ -524,6 +534,31 @@ export class EntanglementStore {
       }
     }
     return violations;
+  }
+
+  /** Stored values of `keys`; absent documents are left out. */
+  private async rawMany(keys: readonly KeyString[]): Promise<Map<KeyString, string>> {
+    const byCollection = new Map<string, string[]>();
+    for (const key of keys) {
+      const { collection, id } = parseKey(key);
+      const ids = byCollection.get(collection);
+      if (ids) ids.push(id);
+      else byCollection.set(collection, [id]);
+    }
+    const found = new Map<KeyString, string>();
+    for (const [collection, ids] of byCollection) {
+      const def = this.defs.get(collection);
+      if (!def) continue;
+      for (let i = 0; i < ids.length; i += RAW_CHUNK) {
+        const part = ids.slice(i, i + RAW_CHUNK);
+        const rows = await this.sql.select(
+          `SELECT id, doc FROM "${def.table}" WHERE id IN (${part.map(() => "?").join(",")})`,
+          part,
+        );
+        for (const row of rows) found.set(keyString(collection, String(row.id)), String(row.doc));
+      }
+    }
+    return found;
   }
 }
 
