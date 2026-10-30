@@ -1,0 +1,25 @@
+{
+  "name": "@entanglement/cloudflare",
+  "version": "0.1.0",
+  "description": "Cloudflare Durable Object server and client SyncBackend for Entanglement.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@entanglement/core": "0.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "miniflare": "^4.20260310.0"
+  }
+}

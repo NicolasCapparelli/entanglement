@@ -1,0 +1,11 @@
+{
+  // Reference configuration for the example Worker; see docs/cloudflare-setup.md.
+  "name": "entanglement-sync",
+  "main": "worker.ts",
+  "compatibility_date": "2025-09-01",
+  "durable_objects": {
+    "bindings": [{ "name": "ENTANGLEMENT_ACCOUNT", "class_name": "EntanglementAccount" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["EntanglementAccount"] }],
+  "kv_namespaces": [{ "binding": "TOKENS", "id": "<your KV namespace id>" }]
+}
