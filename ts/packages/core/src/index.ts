@@ -9,7 +9,14 @@ export { canonicalJson, decodeDocument, CanonicalJsonError, type Json } from "./
 export { StateDigest, entityHash } from "./digest.js";
 export { Emitter, type Unsubscribe } from "./emitter.js";
 export { SyncEngine, SyncIntegrityError, SyncUnavailableError } from "./engine.js";
-export { EntanglementDb, type OpenOptions, type SyncRole } from "./db.js";
+export {
+  EntanglementDb,
+  SyncRemoteHasHistoryError,
+  type AttachSyncOptions,
+  type OpenOptions,
+  type RemoteHistoryChoice,
+  type SyncRole,
+} from "./db.js";
 export {
   InMemoryBackend,
   InMemoryServer,

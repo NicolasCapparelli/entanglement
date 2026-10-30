@@ -114,6 +114,7 @@ export class SyncEngine {
   private cycleQueued = false;
   private started = false;
   private disposed = false;
+  private held = false;
   private lastStateAtMigrated = false;
   private readonly policyOverrides = new Map<SyncMode, ConflictPolicy>();
 
@@ -168,14 +169,26 @@ export class SyncEngine {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
-  async start(): Promise<void> {
+  /**
+   * `hold: true` starts without running any automatic cycle until `release()`
+   * (used by `attachSync` to decide how to treat an existing remote first).
+   */
+  async start(options: { hold?: boolean } = {}): Promise<void> {
     if (this.started) return;
     this.started = true;
+    this.held = options.hold ?? false;
     const stored = await this.store.read((reader) => reader.meta("mode"));
     if (stored === "vcs" || stored === "realtime") this.currentMode = stored;
     this.subscriptions.push(this.store.onChange((event) => this.onLocalChange(event)));
     this.subscriptions.push(this.accounts.onAccountChange((account) => void this.onAccount(account)));
     await this.onAccount(this.accounts.currentAccount());
+  }
+
+  /** Ends a `start({hold: true})` and runs the first cycle. */
+  release(): void {
+    if (!this.held) return;
+    this.held = false;
+    if (this.currentMode === "realtime") this.requestCycle();
   }
 
   async dispose(): Promise<void> {
@@ -1421,7 +1434,7 @@ export class SyncEngine {
 
   /** Runs one cycle soon, collapsing requests while one is queued. */
   private requestCycle(): void {
-    if (!this.ready || this.disposed || this.cycleQueued) return;
+    if (!this.ready || this.disposed || this.held || this.cycleQueued) return;
     this.cycleQueued = true;
     queueMicrotask(() => {
       this.cycleQueued = false;

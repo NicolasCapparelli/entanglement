@@ -90,6 +90,7 @@ class SyncEngine {
   bool _cycleQueued = false;
   bool _started = false;
   bool _disposed = false;
+  bool _held = false;
 
   SyncStatus _status = const SyncStatus(
     relation: SyncRelation.signedOut,
@@ -119,14 +120,24 @@ class SyncEngine {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
-  Future<void> start() async {
+  /// With [hold], no automatic cycle runs until [release] (used by
+  /// `EntanglementDb.attachSync` to decide how to treat an existing remote).
+  Future<void> start({bool hold = false}) async {
     if (_started) return;
     _started = true;
+    _held = hold;
     final stored = await store.read((reader) => reader.meta('mode'));
     _mode = SyncMode.fromName(stored) ?? options.defaultMode;
     _subscriptions.add(store.changes.listen(_onLocalChange));
     _subscriptions.add(accounts.accountChanges.listen(_onAccount));
     await _onAccount(accounts.currentAccount);
+  }
+
+  /// Ends a `start(hold: true)` and runs the first cycle.
+  void release() {
+    if (!_held) return;
+    _held = false;
+    if (_mode == SyncMode.realtime) _requestCycle();
   }
 
   Future<void> dispose() async {
@@ -1552,7 +1563,7 @@ class SyncEngine {
   /// Runs one sync cycle soon, collapsing requests that arrive while one is
   /// already queued.
   void _requestCycle() {
-    if (!_ready || _disposed || _cycleQueued) return;
+    if (!_ready || _disposed || _held || _cycleQueued) return;
     _cycleQueued = true;
     scheduleMicrotask(() async {
       _cycleQueued = false;

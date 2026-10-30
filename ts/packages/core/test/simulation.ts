@@ -103,17 +103,33 @@ export async function simulate(
   const policies: ConflictPolicy[] = ["preferRemote", "preferLocal", ...(interactive ? (["ask", "ask"] as const) : [])];
   const devices: Device[] = [];
   for (let index = 0; index < 4; index++) {
+    // The last device starts local-only on odd seeds and turns sync on mid-run.
+    const late = index === 3 && seed % 2 === 1;
     const device = await Device.create(null, {
       backend: (accounts) => target.backend(accounts),
+      localOnly: late,
       name: `d${index}`,
       sync: {
         vcs: { remoteCheckEveryMs: null },
         history: { dailyRestorePoints: false, checkpointEvery: 3 + int(6), keepRestorePoints: 1 + int(3) },
       },
     });
-    await device.sync.setConflictPolicy(pick(policies));
+    if (!late) await device.sync.setConflictPolicy(pick(policies));
     devices.push(device);
   }
+  const lateDevice = seed % 2 === 1 ? devices[3]! : null;
+  const attachLate = async (): Promise<void> => {
+    if (!lateDevice || lateDevice.db.sync) return;
+    try {
+      await lateDevice.attachBackend(target.backend(lateDevice.accounts), "merge", {
+        vcs: { remoteCheckEveryMs: null },
+        history: { dailyRestorePoints: false, checkpointEvery: 3 + int(6), keepRestorePoints: 1 + int(3) },
+      });
+      await lateDevice.sync.setConflictPolicy(pick(policies));
+    } catch (error) {
+      if (!(error instanceof BackendError)) throw error;
+    }
+  };
 
   let counter = 0;
   const fresh = (prefix: string): string => `${prefix}${seed}_${counter++}`;
@@ -178,8 +194,9 @@ export async function simulate(
   };
 
   for (let step = 0; step < 250; step++) {
+    if (step >= 60 && random() < 0.1) await attachLate();
     const device = pick(devices);
-    const edit = random() < 0.55;
+    const edit = random() < 0.55 || !device.db.sync;
     try {
       if (edit) await randomEdit(device);
       else await randomSync(device);
@@ -189,6 +206,7 @@ export async function simulate(
   }
 
   faultRate = 0;
+  while (lateDevice && !lateDevice.db.sync) await attachLate();
   for (let round = 0; round < 8; round++) {
     for (const device of devices) {
       for (let attempt = 0; attempt < 3; attempt++) {

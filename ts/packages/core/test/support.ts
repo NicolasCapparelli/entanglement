@@ -12,6 +12,7 @@ import {
   type DocumentMigration,
   type InMemoryServer,
   type Json,
+  type RemoteHistoryChoice,
   type KeyString,
   type SqlExecutor,
   type SyncBackend,
@@ -78,6 +79,8 @@ export class Device {
       cipher?: Cipher;
       /** Replaces the in-memory backend (then `server` may be null). */
       backend?: (accounts: ManualAccountSource) => SyncBackend;
+      /** Opens without a backend; call `attach()` later. */
+      localOnly?: boolean;
     } = {},
   ): Promise<Device> {
     const name = options.name ?? "device";
@@ -85,12 +88,40 @@ export class Device {
     const db = await EntanglementDb.open({
       executor: options.executor ?? (await memoryExecutor()),
       schema: options.schema ?? testSchema(),
-      backend: options.backend ? options.backend(accounts) : new InMemoryBackend(server!, accounts),
-      accounts,
-      cipher: options.cipher,
+      ...(options.localOnly
+        ? {}
+        : {
+            backend: options.backend ? options.backend(accounts) : new InMemoryBackend(server!, accounts),
+            accounts,
+            cipher: options.cipher,
+          }),
       options: { ...quietOptions, ...options.sync, deviceLabel: name },
     });
     return new Device(name, db, accounts);
+  }
+
+  /** Attaches any backend to a device created with `localOnly`. */
+  attachBackend(backend: SyncBackend, ifRemoteHasHistory?: RemoteHistoryChoice, sync?: SyncOptions) {
+    return this.db.attachSync({
+      backend,
+      accounts: this.accounts,
+      options: { ...quietOptions, ...sync, deviceLabel: this.name },
+      ifRemoteHasHistory,
+    });
+  }
+
+  /** Attaches sync to a device created with `localOnly`. */
+  attach(
+    server: InMemoryServer,
+    options: { ifRemoteHasHistory?: RemoteHistoryChoice; cipher?: Cipher; sync?: SyncOptions } = {},
+  ) {
+    return this.db.attachSync({
+      backend: new InMemoryBackend(server, this.accounts),
+      accounts: this.accounts,
+      cipher: options.cipher,
+      options: { ...quietOptions, ...options.sync, deviceLabel: this.name },
+      ifRemoteHasHistory: options.ifRemoteHasHistory,
+    });
   }
 
   get sync() {

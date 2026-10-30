@@ -45,13 +45,16 @@ class Device {
     Schema? schema,
     SqlExecutor? executor,
     Cipher? cipher,
+
+    /// Opens without a backend; call [attach] later.
+    bool localOnly = false,
   }) async {
     final accounts = ManualAccountSource(account);
     final db = await EntanglementDb.open(
       executor: executor ?? SqliteExecutor.memory(),
       schema: schema ?? testSchema(),
-      backend: InMemoryBackend(server, accounts),
-      accounts: accounts,
+      backend: localOnly ? null : InMemoryBackend(server, accounts),
+      accounts: localOnly ? null : accounts,
       cipher: cipher,
       options: SyncOptions(
         defaultMode: options.defaultMode,
@@ -69,6 +72,21 @@ class Device {
   final ManualAccountSource accounts;
 
   SyncEngine get sync => db.sync!;
+
+  /// Attaches sync to a device created with `localOnly`.
+  Future<SyncEngine> attach(
+    InMemoryServer server, {
+    RemoteHistoryChoice ifRemoteHasHistory = RemoteHistoryChoice.refuse,
+  }) => db.attachSync(
+    backend: InMemoryBackend(server, accounts),
+    accounts: accounts,
+    options: SyncOptions(
+      vcs: quietOptions.vcs,
+      history: quietOptions.history,
+      deviceLabel: name,
+    ),
+    ifRemoteHasHistory: ifRemoteHasHistory,
+  );
 
   Future<void> addBoard(String id, String name) =>
       db.write((tx) => tx.put(boards, {'id': id, 'name': name}));

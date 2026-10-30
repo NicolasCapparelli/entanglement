@@ -36,12 +36,105 @@ export interface OpenOptions {
  * await db.sync?.push({ message: "Before the trip" });
  * ```
  */
+/** What `attachSync` does when the remote already has history and this device has unsynced local data. */
+export type RemoteHistoryChoice = "refuse" | "merge" | "useRemote" | "useLocal";
+
+export interface AttachSyncOptions {
+  backend: SyncBackend;
+  accounts: AccountSource;
+  options?: SyncOptions;
+  /** Encrypts everything sent to the backend (spec/cipher.md). */
+  cipher?: Cipher;
+  /**
+   * Only consulted when the remote already has commits AND this device has
+   * local data it has never synced. A remote that is empty, or a device with
+   * nothing unsynced, never needs a choice.
+   * - `refuse` (default): throw `SyncRemoteHasHistoryError`; nothing changes.
+   * - `merge`: ordinary three-way merge against an empty ancestor.
+   * - `useRemote`: `discardLocalAndPull` (local changes are backed up first).
+   * - `useLocal`: `overwriteRemoteWithLocal` (the remote is restore-pointed first).
+   */
+  ifRemoteHasHistory?: RemoteHistoryChoice;
+}
+
+/** Thrown by `attachSync` when the remote has history that this device's local data was never part of. */
+export class SyncRemoteHasHistoryError extends Error {
+  constructor(
+    readonly remoteRevision: number,
+    readonly localChanges: number,
+  ) {
+    super(
+      `The remote already has history (revision ${remoteRevision}) and this device holds ${localChanges} ` +
+        "unsynced document(s). Pass ifRemoteHasHistory: 'merge' | 'useRemote' | 'useLocal'.",
+    );
+    this.name = "SyncRemoteHasHistoryError";
+  }
+}
+
 export class EntanglementDb {
+  private engine: SyncEngine | null;
+
   private constructor(
     readonly store: EntanglementStore,
-    /** Sync controls, or null for a local-only or passive instance. */
-    readonly sync: SyncEngine | null,
-  ) {}
+    engine: SyncEngine | null,
+    private readonly role: SyncRole,
+  ) {
+    this.engine = engine;
+  }
+
+  /** Sync controls, or null for a local-only or passive instance (changes with `attachSync` / `detachSync`). */
+  get sync(): SyncEngine | null {
+    return this.engine;
+  }
+
+  /**
+   * Turns sync on for an open, local-only database. Local history is kept:
+   * unsynced documents are published by the first cycle (an empty remote
+   * receives them as revision 1). If the remote already has commits and this
+   * device has never-synced data, `ifRemoteHasHistory` decides (default:
+   * throw, leaving the database untouched). Returns the new engine.
+   */
+  async attachSync(options: AttachSyncOptions): Promise<SyncEngine> {
+    if (this.engine) throw new Error("Sync is already attached; call detachSync() first.");
+    if (this.role !== "leader") throw new Error("Only the leader instance can sync.");
+    const backend = options.cipher ? new EncryptedBackend(options.backend, options.cipher) : options.backend;
+    const choice = options.ifRemoteHasHistory ?? "refuse";
+    const { base, pending } = await this.store.read(async (reader) => ({
+      base: await reader.base(),
+      pending: await reader.allPending(),
+    }));
+    const unsynced = base.revision === 0 ? pending.length : 0;
+    let needsChoice = false;
+    if (unsynced > 0 && choice !== "merge") {
+      const head = await backend.head();
+      if (head !== null) {
+        if (choice === "refuse") throw new SyncRemoteHasHistoryError(head.revision, unsynced);
+        needsChoice = true;
+      }
+    }
+    const engine = new SyncEngine(this.store, backend, options.accounts, options.options);
+    await engine.start({ hold: needsChoice });
+    if (needsChoice) {
+      try {
+        if (choice === "useRemote") await engine.discardLocalAndPull();
+        else if (choice === "useLocal") await engine.overwriteRemoteWithLocal();
+      } catch (error) {
+        await engine.dispose();
+        throw error;
+      }
+      engine.release();
+    }
+    this.engine = engine;
+    return engine;
+  }
+
+  /** Turns sync off. Local data, pending changes and the sync base stay, so `attachSync` later continues where it left off. */
+  async detachSync(): Promise<void> {
+    const engine = this.engine;
+    if (!engine) return;
+    this.engine = null;
+    await engine.dispose();
+  }
 
   static async open(options: OpenOptions): Promise<EntanglementDb> {
     const store = await EntanglementStore.open(options.executor, options.schema);
@@ -55,7 +148,7 @@ export class EntanglementDb {
       );
       await engine.start();
     }
-    return new EntanglementDb(store, engine);
+    return new EntanglementDb(store, engine, options.role ?? "leader");
   }
 
   /** Runs `body` as one atomic, coupled transaction (spec §7.1). */
@@ -93,7 +186,7 @@ export class EntanglementDb {
   }
 
   async close(): Promise<void> {
-    await this.sync?.dispose();
+    await this.engine?.dispose();
     await this.store.close();
   }
 }
