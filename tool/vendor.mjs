@@ -98,7 +98,7 @@ function vendorDart(target) {
 
 function vendorTs(target) {
 	const ts = path.join(root, "ts");
-	run("npx tsc -b packages/core packages/supabase packages/expo-sqlite packages/cloudflare", ts);
+	run("npx tsc -b packages/core packages/supabase packages/expo-sqlite packages/tauri-sqlite packages/cloudflare", ts);
 	reset(target);
 	const files = [];
 	for (const name of TS_PACKAGES) {
