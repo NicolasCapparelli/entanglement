@@ -38,7 +38,7 @@ if (!args.dart && !args.ts && !args.sql && !args.apps && !args.status) {
 
 const stamp = versionStamp();
 const DART_PACKAGES = ["entanglement", "entanglement_flutter", "entanglement_supabase"];
-const TS_PACKAGES = ["core", "supabase", "expo-sqlite"];
+const TS_PACKAGES = ["core", "supabase", "expo-sqlite", "tauri-sqlite"];
 const SQL = path.join(root, "packages/entanglement_supabase/supabase/migrations/0001_entanglement.sql");
 
 // Apps that vendor Entanglement, relative to this repo's root.

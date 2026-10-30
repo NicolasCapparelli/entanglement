@@ -1,0 +1,11 @@
+[default]
+description = "Allows every Entanglement SQLite command."
+permissions = [
+  "allow-select",
+  "allow-execute",
+  "allow-begin",
+  "allow-commit",
+  "allow-rollback",
+  "allow-data-version",
+  "allow-close",
+]

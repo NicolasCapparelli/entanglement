@@ -3,8 +3,8 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "build": "tsc -b packages/core packages/supabase packages/expo-sqlite",
-    "typecheck": "tsc -b packages/core packages/supabase packages/expo-sqlite --noEmit",
+    "build": "tsc -b packages/core packages/supabase packages/expo-sqlite packages/tauri-sqlite",
+    "typecheck": "tsc -b packages/core packages/supabase packages/expo-sqlite packages/tauri-sqlite --noEmit",
     "test": "vitest run"
   },
   "devDependencies": {

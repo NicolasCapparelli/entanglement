@@ -1,0 +1,20 @@
+[package]
+name = "tauri-plugin-entanglement-sqlite"
+version = "0.1.0"
+edition = "2021"
+description = "Tauri 2 plugin: one serialized rusqlite connection per database, for Entanglement's SqlExecutor."
+license = "MIT"
+links = "tauri-plugin-entanglement-sqlite"
+
+[dependencies]
+tauri = "2"
+rusqlite = { version = "0.37", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+
+[build-dependencies]
+tauri-plugin = { version = "2", features = ["build"] }
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,32 @@
+{
+  "name": "@entanglement/tauri-sqlite",
+  "version": "0.1.0",
+  "description": "SqlExecutor for Entanglement over the tauri-plugin-entanglement-sqlite Rust plugin.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@entanglement/core": "0.1.0"
+  },
+  "peerDependencies": {
+    "@tauri-apps/api": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@tauri-apps/api": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "^2.0.0"
+  }
+}
