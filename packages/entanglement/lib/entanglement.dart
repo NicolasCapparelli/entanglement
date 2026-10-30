@@ -7,6 +7,15 @@ library;
 
 export 'src/canonical.dart'
     show canonicalJson, decodeDocument, CanonicalJsonException;
+export 'src/cipher.dart'
+    show
+        Cipher,
+        CipherContext,
+        CipherException,
+        EncryptedBackend,
+        KeyCipher,
+        openValue,
+        sealValue;
 export 'src/digest.dart' show StateDigest, entityHash;
 export 'src/engine.dart'
     show SyncEngine, SyncIntegrityException, SyncUnavailableException;

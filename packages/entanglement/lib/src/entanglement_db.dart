@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'cipher.dart';
 import 'engine.dart';
 import 'protocol.dart';
 import 'query.dart';
@@ -37,13 +38,16 @@ class EntanglementDb {
     AccountSource? accounts,
     SyncOptions options = const SyncOptions(),
     SyncRole role = SyncRole.leader,
+
+    /// Encrypts everything sent to [backend] (spec/cipher.md).
+    Cipher? cipher,
   }) async {
     final store = await EntanglementStore.open(executor, schema);
     SyncEngine? engine;
     if (backend != null && accounts != null && role == SyncRole.leader) {
       engine = SyncEngine(
         store: store,
-        backend: backend,
+        backend: cipher == null ? backend : EncryptedBackend(backend, cipher),
         accounts: accounts,
         options: options,
       );

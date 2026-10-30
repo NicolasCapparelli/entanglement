@@ -44,6 +44,7 @@ class Device {
     SyncOptions options = quietOptions,
     Schema? schema,
     SqlExecutor? executor,
+    Cipher? cipher,
   }) async {
     final accounts = ManualAccountSource(account);
     final db = await EntanglementDb.open(
@@ -51,6 +52,7 @@ class Device {
       schema: schema ?? testSchema(),
       backend: InMemoryBackend(server, accounts),
       accounts: accounts,
+      cipher: cipher,
       options: SyncOptions(
         defaultMode: options.defaultMode,
         vcs: options.vcs,
