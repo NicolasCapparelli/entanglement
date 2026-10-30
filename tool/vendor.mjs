@@ -46,6 +46,7 @@ const APPS = [
 	{ name: "quadra-app", kind: "dart", dir: "../quadra-app/vendor/entanglement" },
 	{ name: "quadra", kind: "ts", dir: "../quadra/vendor/entanglement" },
 	{ name: "trace", kind: "dart", dir: "../trace/vendor/entanglement" },
+	{ name: "mille", kind: "ts", dir: "../mille/vendor/entanglement" },
 ];
 
 if (args.status) {
