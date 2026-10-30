@@ -1,0 +1,29 @@
+{
+  "name": "@entanglement/expo-sqlite",
+  "version": "0.1.0",
+  "description": "SqlExecutor for Entanglement on expo-sqlite (React Native).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@entanglement/core": "0.1.0"
+  },
+  "peerDependencies": {
+    "expo-sqlite": ">=15.0.0"
+  },
+  "peerDependenciesMeta": {
+    "expo-sqlite": {
+      "optional": true
+    }
+  }
+}

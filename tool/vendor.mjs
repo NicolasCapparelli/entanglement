@@ -38,7 +38,7 @@ if (!args.dart && !args.ts && !args.sql && !args.apps && !args.status) {
 
 const stamp = versionStamp();
 const DART_PACKAGES = ["entanglement", "entanglement_flutter", "entanglement_supabase"];
-const TS_PACKAGES = ["core", "supabase"];
+const TS_PACKAGES = ["core", "supabase", "expo-sqlite"];
 const SQL = path.join(root, "packages/entanglement_supabase/supabase/migrations/0001_entanglement.sql");
 
 // Apps that vendor Entanglement, relative to this repo's root.
@@ -98,7 +98,7 @@ function vendorDart(target) {
 
 function vendorTs(target) {
 	const ts = path.join(root, "ts");
-	run("npx tsc -b packages/core packages/supabase", ts);
+	run("npx tsc -b packages/core packages/supabase packages/expo-sqlite", ts);
 	reset(target);
 	const files = [];
 	for (const name of TS_PACKAGES) {
