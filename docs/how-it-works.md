@@ -465,4 +465,4 @@ Commit Entanglement first, so each `VENDORED.md` names a real commit. If the ser
 - **Never point tests at a production project;** the contract suite creates users.
 - **Known limitations:**
   - A resolution that would break a reference is refused rather than turned into a new conflict.
-  - Web has compiled but not run in a browser.
+  - Web: the core (sql.js executor, two-device sync, cipher) runs in headless Chromium and WebKit (`npm run browser-check` in `ts/`, a Playwright harness). Persistence to IndexedDB/OPFS and a real browser backend have not been exercised.
